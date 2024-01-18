@@ -18,7 +18,9 @@ defmodule Earmark.AstTools do
       ...(3)>              [{"target", "_blank"}, title: "where?"])
       [{"alt", "nowhere"}, {"href", "url"}, {"target", "_blank nonsense"}, {"title", "where?"}]
   """
+  @spec merge_atts(Earkmark.ast_attributes(), map() | Keyword.t()) :: Earkmark.ast_attributes()
   def merge_atts(attrs, new)
+
   def merge_atts(attrs, new) do
     attrs
     |> Enum.into(%{})
@@ -47,8 +49,11 @@ defmodule Earmark.AstTools do
       iex(9)> find_att_in_node([{"class", "link"}], "target", :default)
       :default
   """
+  @spec find_att_in_node(Earmark.ats_node() | Earkmark.ast_attributes(), binary(), any()) :: any()
   def find_att_in_node(node_or_atts, att), do: _find_att(node_or_atts, att)
-  def find_att_in_node(node_or_atts, att, default), do: _find_att_with_default(node_or_atts, att, default)
+
+  def find_att_in_node(node_or_atts, att, default),
+    do: _find_att_with_default(node_or_atts, att, default)
 
   @doc """
   A convenience function that extracts the original attributes to be merged with new attributes
@@ -58,6 +63,7 @@ defmodule Earmark.AstTools do
       {"img", [{"alt", "here there"}, {"src", "there"}], [], %{some: "meta"}}
 
   """
+  @spec merge_atts_in_node(Earmark.ats_node(), map() | Keyword.t()) :: Earmark.ats_node()
   def merge_atts_in_node({tag, atts, content, meta}, new_atts) do
     {tag, merge_atts(atts, new_atts), content, meta}
   end
@@ -71,34 +77,43 @@ defmodule Earmark.AstTools do
       {"p", "text"}
 
   """
-  def node_only_fn(fun), do:
-    fn {_, _, _, _} = quad -> fun.(quad)
-       text                -> text
+  @spec node_only_fn((Earmark.ats_node() -> any())) :: (Earmark.ats_node() | binary() -> any())
+  def node_only_fn(fun),
+    do: fn
+      {_, _, _, _} = quad -> fun.(quad)
+      text -> text
     end
 
+  # Group attribute-related functions together
   defp _combine_atts(_key, original, new), do: "#{new} #{original}"
 
   defp _find_att(node_or_atts, att)
   defp _find_att({_, atts, _, _}, att), do: _find_att(atts, att)
+
   defp _find_att(atts, att) do
     atts
     |> Enum.find_value(fn {key, value} -> if att == key, do: value end)
   end
 
   defp _find_att_with_default(node_or_atts, att, default)
-  defp _find_att_with_default({_, atts, _, _}, att, default), do: _find_att_with_default(atts, att, default)
+
+  defp _find_att_with_default({_, atts, _, _}, att, default),
+    do: _find_att_with_default(atts, att, default)
+
   defp _find_att_with_default(atts, att, default) do
     atts
     |> Enum.find_value(default, fn {key, value} -> if att == key, do: value end)
   end
 
   defp _stringyfy(mappy)
+
   defp _stringyfy(map) when is_map(map) do
     map |> Enum.into([]) |> _stringyfy()
   end
+
   defp _stringyfy(list) when is_list(list) do
     list |> Enum.map(fn {k, v} -> {to_string(k), v} end) |> Enum.into(%{})
   end
-
 end
+
 #  SPDX-License-Identifier: Apache-2.0
