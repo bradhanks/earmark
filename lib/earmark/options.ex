@@ -74,6 +74,36 @@ defmodule Earmark.Options do
             timeout: nil,
             wikilinks: false
 
+  @type t :: %__MODULE__{
+          annotations: String.t() | nil,
+          breaks: boolean(),
+          code_class_prefix: String.t() | nil,
+          compact_output: boolean(),
+          eex: boolean(),
+          escape: boolean(),
+          file: String.t() | nil,
+          footnote_offset: non_neg_integer(),
+          footnotes: boolean(),
+          gfm: boolean(),
+          gfm_tables: boolean(),
+          ignore_strings: boolean(),
+          inner_html: boolean(),
+          line: non_neg_integer(),
+          mapper: (list(any()), function() -> {:ok, list(any())} | {:error, any()}),
+          mapper_with_timeout:
+            (list(any()), function(), integer() -> {:ok, list(any())} | {:error, any()}),
+          messages: list(Earmark.Error.t()) | [],
+          pedantic: boolean(),
+          postprocessor: function() | nil,
+          pure_links: boolean(),
+          sub_sup: boolean(),
+          registered_processors: list(any()),
+          smartypants: boolean(),
+          template: boolean(),
+          timeout: integer() | nil,
+          wikilinks: boolean()
+        }
+
   @doc ~S"""
   Make a legal and normalized Option struct from, maps or keyword lists
 
@@ -115,7 +145,8 @@ defmodule Earmark.Options do
   {:error, [{:error, 0, "footnote_offset option must be numeric"}, {:error, 0, "line option must be numeric"}]}
 
   """
-
+  @spec make_options(keyword() | map() | t()) ::
+          {:ok, t()} | {:error, [{atom(), integer(), String.t()}]}
   def make_options(options \\ [])
 
   def make_options(%__MODULE__{} = options) do
@@ -153,6 +184,32 @@ defmodule Earmark.Options do
     |> make_options()
   end
 
+  @doc ~S"""
+  Creates an `Earmark.Options` struct from maps or keyword lists, raising an error if any issues are found.
+
+  This function behaves like `make_options/1` but will raise an `Earmark.Error` if invalid options are passed or if required numeric values are provided as non-numeric.
+
+  Examples:
+
+    iex> make_options!()
+    %Earmark.Options{}
+
+    iex> make_options!(%{breaks: true, gfm: false})
+    %Earmark.Options{breaks: true, gfm: false}
+
+  Invalid options will raise an error:
+
+    iex> make_options!(no_such_option: true)
+    ** (Earmark.Error) Unrecognized option no_such_option: true
+
+  Options that expect numeric values must receive numbers, otherwise, an error is raised:
+
+    iex> make_options!(line: "forty-two")
+    ** (Earmark.Error) line option must be numeric
+
+  """
+
+  @spec make_options!(keyword() | map() | t()) :: t() | none()
   def make_options!(options \\ []) do
     case make_options(options) do
       {:ok, options_} -> options_
@@ -191,6 +248,7 @@ defmodule Earmark.Options do
   "./local.md"
 
   """
+  @spec relative_filename(t() | keyword(), binary()) :: t()
   def relative_filename(options, filename)
 
   def relative_filename(options, filename) when is_list(options) do
@@ -212,6 +270,7 @@ defmodule Earmark.Options do
   @doc """
   A convenience constructor
   """
+  @spec with_postprocessor(any(), [any()]) :: t()
   def with_postprocessor(pp, rps \\ []),
     do: %__MODULE__{postprocessor: pp, registered_processors: rps}
 
