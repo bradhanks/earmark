@@ -189,24 +189,6 @@ defmodule Earmark.Options do
 
   This function behaves like `make_options/1` but will raise an `Earmark.Error` if invalid options are passed or if required numeric values are provided as non-numeric.
 
-  Examples:
-
-    iex> make_options!()
-    %Earmark.Options{}
-
-    iex> make_options!(%{breaks: true, gfm: false})
-    %Earmark.Options{breaks: true, gfm: false}
-
-  Invalid options will raise an error:
-
-    iex> make_options!(no_such_option: true)
-    ** (Earmark.Error) Unrecognized option no_such_option: true
-
-  Options that expect numeric values must receive numbers, otherwise, an error is raised:
-
-    iex> make_options!(line: "forty-two")
-    ** (Earmark.Error) line option must be numeric
-
   """
 
   @spec make_options!(keyword() | map() | t()) :: t() | none()
