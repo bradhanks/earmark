@@ -46,7 +46,8 @@ defmodule Earmark.Mixfile do
         "coveralls.html": :test
       ],
       test_coverage: [tool: ExCoveralls],
-      aliases: [docs: &build_docs/1]
+      aliases: [docs: &build_docs/1],
+      dialyzer: dialyzer_opts()
     ]
   end
 
@@ -105,6 +106,14 @@ defmodule Earmark.Mixfile do
     Mix.shell().info("Running: #{ex_doc} #{inspect(args ++ opts)}")
     System.cmd(ex_doc, args ++ opts)
     Mix.shell().info("Docs built successfully")
+  end
+
+  defp dialyzer_opts do
+    [
+      flags: [:unmatched_returns, :error_handling, :race_conditions, :no_opaque],
+      ignore_warnings: "dialyzer.ignore-warnings",
+      plt_add_deps: :transitive
+    ]
   end
 end
 

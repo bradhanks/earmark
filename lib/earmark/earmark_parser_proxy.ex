@@ -15,12 +15,17 @@ defmodule Earmark.EarmarkParserProxy do
   An adapter to `Earmark.Parser.as_ast/*`
   """
   def as_ast(input, options)
-  def as_ast(input, options) when is_list(options)  do
-    Earmark.Parser.as_ast(input, options |> Keyword.delete(:smartypants) |> Keyword.delete(:messages))
-  end
-  def as_ast(input, options) when is_map(options)  do
-    Earmark.Parser.as_ast(input, options |> Map.delete(:smartypants) |> Map.delete(:messages))
+
+  def as_ast(input, options) when is_list(options) do
+    Earmark.Parser.as_ast(
+      input,
+      options |> Keyword.delete(:smartypants) |> Keyword.delete(:messages)
+    )
   end
 
+  def as_ast(input, options) when is_map(options) do
+    Earmark.Parser.as_ast(input, options |> Map.delete(:smartypants) |> Map.delete(:messages))
+  end
 end
+
 #  SPDX-License-Identifier: Apache-2.0

@@ -1,5 +1,4 @@
 defmodule Earmark.Helpers do
-
   @doc """
   `Regex.replace` with the arguments in the correct order
   """
